@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  webapp:
+    build:
+      context: ./
+    ports:
+    - "127.0.0.1:6666:6666"
+    network_mode: "host"
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/Projects:/root/Projects/"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/.config/:/root/.config/"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/.vscode/:/root/.vscode/"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/.ssh/:/root/.ssh/"
+    - "/Users/DGI/Documents/Gilsdav/sail-hub/root/:/root/"
+    - "/Users/DGI/Documents/Gilsdav/sail-hub/tmp/:/tmp/"
