@@ -1,57 +1,58 @@
 const { spawn } = require('child_process');
 const express = require('express');
+const path = require('path');
 
 const app = express();
 
 function sailLs() {
+	return new Promise(function (resolve) {
 
-return new Promise(function(resolve) {
+		const child = spawn('sail', ['ls']);
 
-const child = spawn('sail', ['ls']);
+		let data = '';
 
-let data = '';
+		child.stdout.on('data', function (buffer) {
+			data = data + buffer;
+		});
 
-child.stdout.on('data', function(buffer) {
-	data = data + buffer;
-});
+		function map(values) {
+			let services = values.split('\n');
 
-function map(values) {
-	console.log(values);
+			const nameIndex = services[0].indexOf('name');
+			const urlIndex = services[0].indexOf('url');
+			const statusIndex = services[0].indexOf('status');
 
-	let services = values.split('\n');
+			services = services.map(function (service) {
+				const endNameIndex = service.indexOf(' ', nameIndex);
+				const endUrlIndex = service.indexOf(' ', urlIndex);
+				const endStatusIndex = service.indexOf(' ', statusIndex);
+				return {
+					name: service.substring(nameIndex, endNameIndex),
+					url: service.substring(urlIndex, endUrlIndex),
+					status: service.substring(statusIndex, endStatusIndex)
+				};
+			});
 
-	const nameIndex = services[0].indexOf('name');
-	const urlIndex = services[0].indexOf('url');
+			services = services.filter(function (service) { return service.name && service.name !== 'name'; })
+			return services;
+		}
 
-	services = services.map(function(service) {
-		const endNameIndex = service.indexOf(' ', nameIndex);
-		const endUrlIndex = service.indexOf(' ', urlIndex);
-		return {
-			name: service.substring(nameIndex, endNameIndex),
-			url: service.substring(urlIndex, endUrlIndex)
-		};
+		child.on('exit', function (code, signal) {
+			resolve(map(data));
+		});
+
 	});
-	services = services.filter(function(service) { return service.name && service.name !== 'name' ; })
-	console.log(services);
-	return services;
-}
-
-child.on('exit', function(code, signal) {
-	console.log('child process exited with code ' + code + ' and signal ' + signal );
-
-	resolve(map(data));
-});
-
-});
 
 }
 
-app.get('/sail', function(req, res) {
-	sailLs().then(function(services) {
+app.get('/sail', function (req, res) {
+	sailLs().then(function (services) {
 		res.json(services);
 	});
 });
 
-app.listen(5000, function() {
+app.use('/', express.static(path.join(__dirname, 'public')));
+
+app.listen(5000, function () {
 	console.log('Sail hub listening on port 5000');
 });
