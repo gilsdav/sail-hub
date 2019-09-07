@@ -75,7 +75,7 @@
                 }
             },
             mounted () {
-                fetch('//' + location.hostname + ':5000/sail')
+                fetch('//' + location.host + '/sail')
                 .then(response => {
                     return response.json();
                 })
