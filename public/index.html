@@ -63,7 +63,8 @@
             },
             methods: {
                 openService(service) {
-                    window.open(service.url,'_blank');
+                    // window.open(service.url,'_blank');
+                    location.href = service.url;
                     return false;
                 },
                 showPanel() {
