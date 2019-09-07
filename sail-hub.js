@@ -4,6 +4,8 @@ const path = require('path');
 
 const app = express();
 
+const PORT = 8080;
+
 function sailLs() {
 	return new Promise(function (resolve) {
 
@@ -53,6 +55,6 @@ app.get('/sail', function (req, res) {
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.listen(80, function () {
-	console.log('Sail hub listening on port 80');
+app.listen(PORT, function () {
+	console.log('Sail hub listening on port ' + PORT);
 });
