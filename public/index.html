@@ -11,6 +11,10 @@
     <script src="https://unpkg.com/vue"></script>
     <script src="https://cdn.rawgit.com/officert/vue-slideout-panel/a07d8e2e/dist/vue2-slideout-panel.min.js"></script>
     <link rel="manifest" href="manifest.json">
+    <script>
+        const prod = false;
+        const devIp = '192.168.1.63';
+    </script>
 </head>
 <body>
     <h1>Sail Hub</h1>
@@ -33,26 +37,40 @@
     </div>
 
     <script>
-        window.vue2PanelDebug = true;
+        window.vue2PanelDebug = !prod;
 
-        Vue.component("panel-1", {
-        name: "panel-1",
-        template: `
-        <div>
-        <button class="btn btn-primary" v-on:click.prevent="closePanel">
-        Close Panel
-        </button>
-        </div>
-        `,
-        data() {
-            return {
-            };
-        },
-        methods: {
-            closePanel() {
-            this.$emit("closePanel", {});
+        Vue.component("panel-creation", {
+            name: "panel-creation",
+            template: `
+            <div>
+                <button class="btn btn-link close-panel" v-on:click.prevent="closePanel">
+                    Close
+                </button>
+                <div class="form-group">
+                    <label for="repo">Github Repo link</label>
+                    <input type="text" class="form-control" id="repo" v-model="repoUrl">
+                </div>
+
+                <button class="btn btn-success" v-on:click.prevent="createRepo">
+                    Create
+                </button>
+            </div>
+            `,
+            data() {
+                return {
+                    repoUrl: ''
+                };
+            },
+            methods: {
+                closePanel() {
+                    this.$emit("closePanel", {});
+                },
+                createRepo() {
+                    if (this.repoUrl) {
+                        console.log(this.repoUrl);
+                    }
+                }
             }
-        }
         });
 
         var app = new Vue({
@@ -70,14 +88,14 @@
                 showPanel() {
                     console.log('showPanel');
                     const panel = this.$showPanel({
-                        component: "panel-1",
-                        cssClass: "panel-1",
+                        component: "panel-creation",
+                        cssClass: "panel-creation",
                         props: {}
                     });
                 }
             },
             mounted () {
-                fetch('//' + location.host + '/sail')
+                fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail')
                 .then(response => {
                     return response.json();
                 })
@@ -85,7 +103,7 @@
                     this.services = response.map(service => {
                         return {
                             ...service,
-                            url: service.url.replace('http://127.0.0.1', '//' + location.hostname)
+                            url: service.url.replace('http://127.0.0.1', '//' + (prod ? location.hostname : '192.168.1.63'))
                             .replace(':', function(value) {
                                 return ':4000/editor_' + value.substr(1);
                             }) + '/'

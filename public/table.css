@@ -51,13 +51,13 @@
   }
 }
 
-body {
+body, .slideout {
   padding: 0 2em;
   font-family: Montserrat, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   color: #444;
-  background: #eee;
+  background: #eee !important;
 }
 
 h1 {
