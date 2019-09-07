@@ -1,0 +1,22 @@
+{
+  "name": "sail-hub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sail-hub.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gilsdav@github.com/gilsdav/sail-hub.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gilsdav/sail-hub/issues"
+  },
+  "homepage": "https://github.com/gilsdav/sail-hub#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
