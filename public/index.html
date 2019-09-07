@@ -5,8 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Sail Hub</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="./table.css" >
+    <link rel="stylesheet" href="./main.css" >
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdn.rawgit.com/officert/vue-slideout-panel/a07d8e2e/dist/vue2-slideout-panel.min.js"></script>
 </head>
 <body>
     <h1>Sail Hub</h1>
+
+    <div id="app">
+        <button id="new" class="btn btn-default" v-on:click.prevent="showPanel">New</button>
+        <table class="rwd-table">
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr v-for="service in services">
+                <td data-th="Name">{{ service.name }} </td>
+                <td data-th="Status">{{ service.status }}</td>
+                <td data-th="Action"><button class="btn btn-sm btn-info" v-on:click="openService(service)">Open</button></td>
+            </tr>
+        </table>
+        <slideout-panel></slideout-panel>
+    </div>
+
+    <script>
+        window.vue2PanelDebug = true;
+
+        Vue.component("panel-1", {
+        name: "panel-1",
+        template: `
+        <div>
+        <button class="btn btn-primary" v-on:click.prevent="closePanel">
+        Close Panel
+        </button>
+        </div>
+        `,
+        data() {
+            return {
+            };
+        },
+        methods: {
+            closePanel() {
+            this.$emit("closePanel", {});
+            }
+        }
+        });
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                services: [],
+                loading: true
+            },
+            methods: {
+                openService(service) {
+                    window.location = service.url;
+                    return false;
+                },
+                showPanel() {
+                    console.log('showPanel');
+                    const panel = this.$showPanel({
+                        component: "panel-1",
+                        cssClass: "panel-1",
+                        props: {}
+                    });
+                }
+            },
+            mounted () {
+                fetch('http://192.168.1.63:5000/sail')
+                .then(response => {
+                    return response.json();
+                })
+                .then(response => {
+                    this.services = response.map(service => {
+                        return {...service, url: service.url.replace('http://127.0.0.1', '//' + location.hostname)}
+                    });
+                })
+                .finally(() => this.loading = false);
+            }
+        });
+    </script>
 </body>
 </html>

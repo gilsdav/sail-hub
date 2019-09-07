@@ -1,0 +1,11 @@
+h1, #app {
+    text-align: center;
+}
+
+.rwd-table {
+    margin: auto;
+}
+
+#new {
+    margin-bottom: 10px;
+}
