@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/gilsdav/sail-hub#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "http-proxy": "^1.17.0"
   }
 }
