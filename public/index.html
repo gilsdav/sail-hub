@@ -62,7 +62,7 @@
             },
             methods: {
                 openService(service) {
-                    window.location = service.url;
+                    window.open(service.url,'_blank');
                     return false;
                 },
                 showPanel() {
@@ -75,13 +75,19 @@
                 }
             },
             mounted () {
-                fetch('http://192.168.1.63:5000/sail')
+                fetch('//' + location.hostname + ':5000/sail')
                 .then(response => {
                     return response.json();
                 })
                 .then(response => {
                     this.services = response.map(service => {
-                        return {...service, url: service.url.replace('http://127.0.0.1', '//' + location.hostname)}
+                        return {
+                            ...service,
+                            url: service.url.replace('http://127.0.0.1', '//' + location.hostname)
+                            .replace(':', function(value) {
+                                return ':4000/editor_' + value.substr(1);
+                            }) + '/'
+                        }
                     });
                 })
                 .finally(() => this.loading = false);
