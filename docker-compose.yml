@@ -1,16 +1,24 @@
 version: "3.7"
 services:
   webapp:
+    privileged: true
+    pid: host
     build:
       context: ./
     ports:
-    - "127.0.0.1:6666:6666"
-    network_mode: "host"
+    - "0.0.0.0:6666:6666"
+    network_mode: host
     volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock"
+    # - "/var/run/docker.sock:/var/run/docker.sock"
     # - "/Users/DGI/Documents/Gilsdav/sail-hub/Projects:/root/Projects/"
     # - "/Users/DGI/Documents/Gilsdav/sail-hub/.config/:/root/.config/"
     # - "/Users/DGI/Documents/Gilsdav/sail-hub/.vscode/:/root/.vscode/"
     # - "/Users/DGI/Documents/Gilsdav/sail-hub/.ssh/:/root/.ssh/"
-    - "/Users/DGI/Documents/Gilsdav/sail-hub/root/:/root/"
-    - "/Users/DGI/Documents/Gilsdav/sail-hub/tmp/:/tmp/"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/root/:/root/"
+    # - "/Users/DGI/Documents/Gilsdav/sail-hub/tmp/:/tmp/"
+     - "/usr/local/bin/sail:/usr/local/bin/sail"
+  proxy:
+    image: nginx:1.17
+    network_mode: host
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
