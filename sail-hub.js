@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 
 const app = express();
+app.use(express.json());
 
 const PORT = 8080;
 
@@ -47,9 +48,29 @@ function sailLs() {
 
 }
 
+function sailRun(url) {
+	return new Promise(function (resolve) {
+		const child = spawn('sail', ['run', url]);
+	
+		child.on('exit', function (code, signal) {
+			console.log(code, signal);
+			resolve(true)
+		});
+
+	});
+}
+
 app.get('/sail', function (req, res) {
 	sailLs().then(function (services) {
 		res.json(services);
+	});
+});
+
+app.post('/sail', function(req, res) {
+	console.log('body', req.body);
+	sailRun(req.body.githubUrl).then(function (result) {
+		res.status(result ? '200' : '404');
+		res.send();
 	});
 });
 
