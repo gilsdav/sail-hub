@@ -62,6 +62,20 @@ function sailRun(url) {
 	});
 }
 
+function sailRm(repo) {
+	return new Promise(function (resolve) {
+		const child = spawn('sail', ['rm', repo]);
+		child.stdout.on('data', function(buffer) {
+			console.log(''+buffer);
+		});
+		child.on('exit', function (code, signal) {
+			console.log(code, signal);
+			resolve(code);
+		});
+
+	});
+}
+
 app.get('/sail', function (req, res) {
 	sailLs().then(function (services) {
 		res.json(services);
@@ -71,6 +85,14 @@ app.get('/sail', function (req, res) {
 app.post('/sail', function(req, res) {
 	console.log('body', req.body);
 	sailRun(req.body.githubUrl).then(function (result) {
+		res.status(result === 0 ? '200' : '400');
+		res.send();
+	});
+});
+
+app.delete('/sail', function(req, res) {
+	console.log('rm', req.query.repo);
+	sailRm(req.query.repo).then(function (result) {
 		res.status(result === 0 ? '200' : '400');
 		res.send();
 	});
