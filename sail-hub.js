@@ -64,7 +64,10 @@ function sailRun(url) {
 
 function sailRm(repo) {
 	return new Promise(function (resolve) {
-		const child = spawn('sail', ['rm', repo, '--with-data']);
+		const projectFolder = '~/Projects/' + repo;
+		const command = 'sail rm ' + repo + ' --with-data && chmod -R 777 ' + projectFolder + ' && rm -r ' + projectFolder;
+		console.log(command);
+		const child = spawn(command, { shell: true });
 		child.stdout.on('data', function(buffer) {
 			console.log(''+buffer);
 		});
