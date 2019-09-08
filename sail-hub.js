@@ -51,10 +51,12 @@ function sailLs() {
 function sailRun(url) {
 	return new Promise(function (resolve) {
 		const child = spawn('sail', ['run', url]);
-	
+		child.stdout.on('data', function(buffer) {
+			console.log(''+buffer);
+		});
 		child.on('exit', function (code, signal) {
 			console.log(code, signal);
-			resolve(true)
+			resolve(code);
 		});
 
 	});
@@ -69,7 +71,7 @@ app.get('/sail', function (req, res) {
 app.post('/sail', function(req, res) {
 	console.log('body', req.body);
 	sailRun(req.body.githubUrl).then(function (result) {
-		res.status(result === 0 ? '200' : '404');
+		res.status(result === 0 ? '200' : '400');
 		res.send();
 	});
 });
