@@ -129,7 +129,7 @@
                     const that = this;
                     if (this.service.name === this.repoName) {
                         console.log('delete');
-                        const params = '?repo=' + encodeURIComponent('cdr/sail');
+                        const params = '?repo=' + encodeURIComponent(this.service.name);
                         fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail' + params, {
                             method: 'DELETE'
                         }).then(function(response) {
