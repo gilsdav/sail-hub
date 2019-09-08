@@ -62,12 +62,27 @@
                 };
             },
             methods: {
-                closePanel() {
-                    this.$emit("closePanel", {});
+                closePanel(refresh) {
+                    this.$emit("closePanel", { refresh: refresh });
                 },
                 createRepo() {
+                    const that = this;
                     if (this.repoUrl) {
                         console.log(this.repoUrl);
+                        fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                githubUrl: this.repoUrl
+                            })
+                        }).then(function(response) {
+                            if (response.status === 200) {
+                                that.closePanel(true);
+                            }
+                        });
                     }
                 }
             }
@@ -86,31 +101,40 @@
                     return false;
                 },
                 showPanel() {
+                    const that = this;
                     console.log('showPanel');
                     const panel = this.$showPanel({
                         component: "panel-creation",
                         cssClass: "panel-creation",
                         props: {}
                     });
+                    panel.promise.then(function(result) {
+                        if (result && result.refresh) {
+                            that.fetchData();
+                        }
+                    });
+                },
+                fetchData() {
+                    fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail')
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(response => {
+                        this.services = response.map(service => {
+                            return {
+                                ...service,
+                                url: service.url.replace('http://127.0.0.1', '//' + (prod ? location.hostname : '192.168.1.63'))
+                                .replace(':', function(value) {
+                                    return ':4000/editor_' + value.substr(1);
+                                }) + '/'
+                            }
+                        });
+                    })
+                    .finally(() => this.loading = false);
                 }
             },
             mounted () {
-                fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail')
-                .then(response => {
-                    return response.json();
-                })
-                .then(response => {
-                    this.services = response.map(service => {
-                        return {
-                            ...service,
-                            url: service.url.replace('http://127.0.0.1', '//' + (prod ? location.hostname : '192.168.1.63'))
-                            .replace(':', function(value) {
-                                return ':4000/editor_' + value.substr(1);
-                            }) + '/'
-                        }
-                    });
-                })
-                .finally(() => this.loading = false);
+                this.fetchData();
             }
         });
     </script>
