@@ -20,17 +20,19 @@
     <h1>Sail Hub</h1>
 
     <div id="app">
-        <button id="new" class="btn btn-default" v-on:click.prevent="showPanel">New</button>
+        <button id="new" class="btn btn-default" v-on:click.prevent="showCreationPanel">New</button>
         <table class="rwd-table">
             <tr>
                 <th>Name</th>
                 <th>Status</th>
+                <th></th>
                 <th></th>
             </tr>
             <tr v-for="service in services">
                 <td data-th="Name">{{ service.name }} </td>
                 <td data-th="Status">{{ service.status }}</td>
                 <td data-th="Action"><button class="btn btn-sm btn-info" v-on:click="openService(service)">Open</button></td>
+                <td data-th="Deletion"><button class="btn btn-xs btn-danger" v-on:click.prevent="() => showDeletionPanel(service)">X</button></td>
             </tr>
         </table>
         <slideout-panel></slideout-panel>
@@ -88,6 +90,78 @@
             }
         });
 
+        Vue.component("panel-deletion", {
+            name: "panel-deletion",
+            template: `
+            <div>
+                <button class="btn btn-link close-panel" v-on:click.prevent="closePanel">
+                    Close
+                </button>
+
+                <h2>Deletion of <br/><strong>{{ service.name }}</strong></h2>
+                
+                <div class="alert alert-warning">
+                    <!--<strong>Warning!</strong> Indicates a warning that might need attention.-->
+                    All unpushed modifications will be lost.
+                </div>
+
+                <div class="form-group">
+                    <label for="repo-name">Enter name of the repo:</label>
+                    <input type="text" class="form-control" id="repo-name" v-model="repoName">
+                </div>
+
+                <button class="btn btn-danger" v-on:click.prevent="deleteRepo">
+                    Delete
+                </button>
+            </div>
+            `,
+            props: ['service'],
+            data() {
+                return {
+                    repoName: ''
+                };
+            },
+            methods: {
+                closePanel(refresh) {
+                    this.$emit("closePanel", { refresh: refresh });
+                },
+                deleteRepo() {
+                    const that = this;
+                    if (this.service.name === this.repoName) {
+                        console.log('delete');
+                        const params = '?repo=' + encodeURIComponent('cdr/sail');
+                        fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail' + params, {
+                            method: 'DELETE'
+                        }).then(function(response) {
+                            if (response.status === 200) {
+                                that.closePanel(true);
+                            }
+                        });
+                    }
+                }
+                // createRepo() {
+                //     const that = this;
+                //     if (this.repoUrl) {
+                //         console.log(this.repoUrl);
+                //         fetch('//' + (prod ? location.host : (devIp + ':8080')) + '/sail', {
+                //             method: 'POST',
+                //             headers: {
+                //                 'Accept': 'application/json',
+                //                 'Content-Type': 'application/json'
+                //             },
+                //             body: JSON.stringify({
+                //                 githubUrl: this.repoUrl
+                //             })
+                //         }).then(function(response) {
+                //             if (response.status === 200) {
+                //                 that.closePanel(true);
+                //             }
+                //         });
+                //     }
+                // }
+            }
+        });
+
         var app = new Vue({
             el: '#app',
             data: {
@@ -100,13 +174,29 @@
                     location.href = service.url;
                     return false;
                 },
-                showPanel() {
+                showCreationPanel() {
                     const that = this;
                     console.log('showPanel');
                     const panel = this.$showPanel({
                         component: "panel-creation",
                         cssClass: "panel-creation",
                         props: {}
+                    });
+                    panel.promise.then(function(result) {
+                        if (result && result.refresh) {
+                            that.fetchData();
+                        }
+                    });
+                },
+                showDeletionPanel(service) {
+                    const that = this;
+                    console.log('showPanel');
+                    const panel = this.$showPanel({
+                        component: "panel-deletion",
+                        cssClass: "panel-deletion",
+                        props: {
+                            service: service
+                        }
                     });
                     panel.promise.then(function(result) {
                         if (result && result.refresh) {
