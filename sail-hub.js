@@ -69,7 +69,7 @@ app.get('/sail', function (req, res) {
 app.post('/sail', function(req, res) {
 	console.log('body', req.body);
 	sailRun(req.body.githubUrl).then(function (result) {
-		res.status(result ? '200' : '404');
+		res.status(result === 0 ? '200' : '404');
 		res.send();
 	});
 });
