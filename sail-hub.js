@@ -64,7 +64,7 @@ function sailRun(url) {
 
 function sailRm(repo) {
 	return new Promise(function (resolve) {
-		const child = spawn('sail', ['rm', repo]);
+		const child = spawn('sail', ['rm', repo, '--with-data']);
 		child.stdout.on('data', function(buffer) {
 			console.log(''+buffer);
 		});
